@@ -6,18 +6,20 @@ LEAPLIBS = /Users/yoneken/workspace/c/leap/sdk/lib/libLeap.dylib
 EIGEN_INCDIR = -I/opt/local/include/eigen3
 GLLIBS = -framework GLUT -framework OpenGL
 
-.PHONY: all clean run sample axis vel
+.PHONY: all clean run sample axis vel cycle screen
 
-all: sample axis vel
+all: sample axis vel cycle screen
 
 clean:
 	rm *.o
 	rm -f sample 
 	rm -f axis
 	rm -f vel
+	rm -f cycle
+	rm -f screen
 
 run:
-	./vel
+	./screen
 
 sample: sample.o
 	$(CC) $(LEAPLIBS) $^ -o $@ 
@@ -32,6 +34,18 @@ ifeq ($(UNAME), Darwin)
 endif
 
 vel: vel.o myglut.o
+	$(CC) $(GLLIBS) $(LEAPLIBS) $^ -o $@ 
+ifeq ($(UNAME), Darwin)
+	install_name_tool -change $(LEAPLIBS) @loader_path/libLeap.dylib $@
+endif
+
+cycle: cycle.o myglut.o
+	$(CC) $(GLLIBS) $(LEAPLIBS) $^ -o $@ 
+ifeq ($(UNAME), Darwin)
+	install_name_tool -change $(LEAPLIBS) @loader_path/libLeap.dylib $@
+endif
+
+screen: screen.o
 	$(CC) $(GLLIBS) $(LEAPLIBS) $^ -o $@ 
 ifeq ($(UNAME), Darwin)
 	install_name_tool -change $(LEAPLIBS) @loader_path/libLeap.dylib $@

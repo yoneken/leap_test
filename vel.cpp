@@ -1,5 +1,13 @@
-#include <vector>
+#ifdef WIN32
+#include <GL/glut.h>    			// Header File For The GLUT Library
+#include <GL/gl.h>
+#include <GL/glu.h>
+#else /* OS : !win */
 #include <GLUT/glut.h>
+#endif /* OS */
+
+#include <vector>
+#include <deque>
 #include <math.h>
 #include "Leap.h"
 #include "myglut.h"
@@ -11,7 +19,7 @@ using namespace std;
 /* ASCII code for the escape key. */
 #define KEY_ESCAPE 27
 #define DEFAULT_WIDTH 640
-#define DEFAULT_HEIGHT 480
+#define DEFAULT_HEIGHT 580
 
 #ifndef CDS_FULLSCREEN											// CDS_FULLSCREEN Is Not Defined By Some
 #define CDS_FULLSCREEN 4										// Compilers. By Defining It This Way,
@@ -26,11 +34,12 @@ double slowMotionRatio = 10.0;				// slowMotionRatio Is A Value To Slow Down The
 double timeElapsed = 0.0;					// Elapsed Time In The Simulation (Not Equal To Real World's Time Unless slowMotionRatio Is 1
 const static long font=(long)GLUT_BITMAP_HELVETICA_10;		// For printing bitmap fonts
 
-Vector3fv vhand(2);
-Vector3fv vfinger(10);
-Matrix3fv mhand(2);
-vector<float> rhand(2);
-Vector3fv vvhand(2);
+Vector3fv vfinger;
+Matrix3fv mhand;
+vector<float> rhand;
+Vector3fd vhand(640, Vector3f::Zero());
+//Vector3fv vhand;
+Vector3fd vvhand(640, Vector3f::Zero());
 
 class SampleListener : public Listener {
 	public:
@@ -79,11 +88,18 @@ void SampleListener::onFrame(const Controller& controller) {
 		Vector tmp, normal, direction;
 
 		const HandList hlist = frame.hands();
-		for(int i=0;i<hlist.count();i++){
+//		for(int i=0;i<hlist.count();i++){
+		int i=0;
 			rhand.push_back(hlist[i].sphereRadius());
 			tmp = hlist[i].palmPosition();
 			v << -tmp[2]/1000.0f, -tmp[0]/1000.0f, tmp[1]/1000.0f;
+			vhand.pop_front();
 			vhand.push_back(v);
+
+			tmp = hlist[i].palmVelocity();
+			v << -tmp[2]/1000.0f, -tmp[0]/1000.0f, tmp[1]/1000.0f;
+			vvhand.pop_front();
+			vvhand.push_back(v);
 
 			normal = hlist[i].palmNormal();
 			direction = hlist[i].direction();
@@ -96,7 +112,7 @@ void SampleListener::onFrame(const Controller& controller) {
 					 y[0], y[1], y[2],
 					 z[0], z[1], z[2];
 			mhand.push_back(m);
-		}
+//		}
 		
 		// Check if the hand has any fingers
 		const FingerList fingers = frame.fingers();
@@ -138,6 +154,13 @@ void DrawGLScene()
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Clear The Screen And The Depth Buffer
 
+	glViewport(0, screen_height-480, screen_width, 480);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(45.0f, (GLfloat)screen_width/(GLfloat)(480), 0.1f, 100.0f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
 // Position Camera 40 Meters Up In Z-Direction.
 	// Set The Up Vector In Y-Direction So That +X Directs To Right And +Y Directs To Up On The Window.
 	//gluLookAtr( 2.0, 0.5, 1.2, 0.0, 0.0, 0.4, 0, 0, 1);
@@ -153,10 +176,11 @@ void DrawGLScene()
 	Vector3d orig;
 	orig << 0.0, 0.0, 0.0;
 	
-	for(int i=0;i<vhand.size();i++){
+//	for(int i=0;i<vhand.size();i++){
+	int i=0;
 		glDrawArrowdr(orig, vhand[i].cast<double>());
 		//glDrawMatrix3fr(rhand[i] * mhand[i] / 500.0f, vhand[i]);
-	}
+//	}
 
 	glColor3ub(  0,	255, 255);
 	for(int i=0;i<vfinger.size();i++){
@@ -172,18 +196,71 @@ void DrawGLScene()
 	glPrint(-0.8f, 0.1, (void *)font, "Press F2 for normal motion");
 	glPrint(-0.7f, 0.1, (void *)font, "Press F3 for slow motion");
 */
-/*
+
+	glViewport(0, 0, screen_width, screen_height - 480);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluOrtho2D(0.0, DEFAULT_WIDTH, 0.0, DEFAULT_HEIGHT);
+	gluOrtho2D(0.0, screen_width, 0.0, screen_height - 480);
 	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
+	// Draw line
 	glColor3ub(255, 255, 255);
 	glBegin(GL_LINE_STRIP);
-		glVertex2i(  0, 400);
-		glVertex2i(640, 400);
+		glVertex2i(  0, 100);
+		glVertex2i(640, 100);
 	glEnd();
+/*
+	// Draw position
+	if(!vhand.empty()){
+		cout << "test " << (int(vhand[0][0]*300.0)+50) << endl;
+		glColor3ub(255,   0,   0);
+		for(int i=1;i<vhand.size();i++){
+			glBegin(GL_LINE_STRIP);
+				glVertex2i(i-1, int(vhand[i-1][0]*300.0)+50);
+				glVertex2i(  i, int(vhand[i][0]*300.0)+50);
+			glEnd();
+		}
+		glColor3ub(  0, 255,   0);
+		for(int i=1;i<vhand.size();i++){
+			glBegin(GL_LINE_STRIP);
+				glVertex2i(i-1, int(vhand[i-1][1]*300.0)+50);
+				glVertex2i(  i, int(vhand[i][1]*300.0)+50);
+			glEnd();
+		}
+		glColor3ub(  0,   0, 255);
+		for(int i=1;i<vhand.size();i++){
+			glBegin(GL_LINE_STRIP);
+				glVertex2i(i-1, int(vhand[i-1][2]*300.0)+50);
+				glVertex2i(  i, int(vhand[i][2]*300.0)+50);
+			glEnd();
+		}
+	}
 */
+	// Draw velocity
+	if(!vvhand.empty()){
+		glColor3ub(255, 255,   0);
+		for(int i=1;i<vvhand.size();i++){
+			glBegin(GL_LINE_STRIP);
+				glVertex2i(i-1, int(vvhand[i-1][0]*20+50));
+				glVertex2i(  i, int(vvhand[i][0]*20+50));
+			glEnd();
+		}
+		glColor3ub(  0, 255, 255);
+		for(int i=1;i<vvhand.size();i++){
+			glBegin(GL_LINE_STRIP);
+				glVertex2i(i-1, int(vvhand[i-1][1]*20+50));
+				glVertex2i(  i, int(vvhand[i][1]*20+50));
+			glEnd();
+		}
+		glColor3ub(255,   0, 255);
+		for(int i=1;i<vvhand.size();i++){
+			glBegin(GL_LINE_STRIP);
+				glVertex2i(i-1, int(vvhand[i-1][2]*20+50));
+				glVertex2i(  i, int(vvhand[i][2]*20+50));
+			glEnd();
+		}
+	}
 	glFlush ();					// Flush The GL Rendering Pipeline
 	glutSwapBuffers();	// swap buffers to display, since we're double buffered.
 }
@@ -237,13 +314,14 @@ void InitGL(int Width, int Height)					// We call this right after our OpenGL wi
 	glEnable(GL_DEPTH_TEST);								// Enables Depth Testing
 	glShadeModel(GL_SMOOTH);								// Enables Smooth Color Shading
 	glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);		// Set Perspective Calculations To Most Accurate
-
+/*
 	glViewport(0, 0, Width, Height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(45.0f,(GLfloat)Width/(GLfloat)Height,0.1f,100.0f);
 	glMatrixMode(GL_MODELVIEW);
-
+	glLoadIdentity();
+*/
 }
 
 /*
@@ -256,12 +334,14 @@ void ReSizeGLScene(int Width, int Height)
 
 	screen_width = Width;
 	screen_height = Height;
-
+/*
 	glViewport(0, 0, screen_width, screen_height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(45.0f,(GLfloat)screen_width/(GLfloat)screen_height,0.1f,100.0f);
 	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+*/
 }
 
 int main(int argc , char ** argv) {
