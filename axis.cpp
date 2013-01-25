@@ -1,5 +1,12 @@
-#include <vector>
+#ifdef WIN32
+#include <GL/glut.h>    			// Header File For The GLUT Library
+#include <GL/gl.h>
+#include <GL/glu.h>
+#else /* OS : !win */
 #include <GLUT/glut.h>
+#endif /* OS */
+
+#include <vector>
 #include <math.h>
 #include "Leap.h"
 #include "myglut.h"
@@ -7,13 +14,6 @@
 using namespace Leap;
 using namespace Eigen;
 using namespace std;
-
-#define GL_WIN_SIZE_X 720
-#define GL_WIN_SIZE_Y 480
-
-bool g_bPause = false;
-bool g_bRecord = false;
-bool g_bQuit = false;
 
 /* ASCII code for the escape key. */
 #define KEY_ESCAPE 27

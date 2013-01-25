@@ -1,5 +1,11 @@
-#include "myglut.h"
+#ifdef WIN32
+#include <GL/glut.h>    			// Header File For The GLUT Library
+#include <GL/gl.h>
+#include <GL/glu.h>
+#else /* OS : !win */
 #include <GLUT/glut.h>
+#endif /* OS */
+#include "myglut.h"
 
 /*
  * @brief Function for displaying bitmap fonts on the screen
