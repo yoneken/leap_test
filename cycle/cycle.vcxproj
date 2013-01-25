@@ -10,10 +10,17 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\cycle.cpp" />
+    <ClCompile Include="..\myglut.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\myglut.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{8861AB2A-2BC0-4F9C-92AF-FA9FD1B0248A}</ProjectGuid>
+    <ProjectGuid>{C7FEEFE2-0BB8-4E06-8D67-22C857DB3878}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>axis</RootNamespace>
+    <RootNamespace>cycle</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -79,13 +86,6 @@
       <IgnoreSpecificDefaultLibraries>libcmt</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\myglut.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\axis.cpp" />
-    <ClCompile Include="..\myglut.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

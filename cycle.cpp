@@ -9,6 +9,7 @@
 #include <vector>
 #include <deque>
 #include <math.h>
+#include <fstream>
 #include "Leap.h"
 #include "myglut.h"
 
@@ -34,6 +35,7 @@ double slowMotionRatio = 10.0;				// slowMotionRatio Is A Value To Slow Down The
 double timeElapsed = 0.0;					// Elapsed Time In The Simulation (Not Equal To Real World's Time Unless slowMotionRatio Is 1
 const static long font=(long)GLUT_BITMAP_HELVETICA_10;		// For printing bitmap fonts
 
+deque<long> capture_time(640, 0);
 Vector3fv vfinger;
 Matrix3fv mhand;
 vector<float> rhand;
@@ -87,6 +89,9 @@ void SampleListener::onFrame(const Controller& controller) {
 		Matrix3f m;
 		Vector tmp, normal, direction;
 
+		capture_time.pop_front();
+		capture_time.push_back(frame.timestamp());
+
 		const HandList hlist = frame.hands();
 //		for(int i=0;i<hlist.count();i++){
 		int i=0;
@@ -132,6 +137,11 @@ void CleanupExit()
 {
 	// Remove the sample listener when done
 	controller.removeListener(listener);
+
+	ofstream ofs("cycle.csv");
+	for(int i=0;i<vvhand.size();i++){
+		ofs << capture_time[i] << "," << vvhand[i][0] << "," << vvhand[i][1] << "," << vvhand[i][2] << endl;
+	}
 
 	exit (1);
 }
