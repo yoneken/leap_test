@@ -6,9 +6,9 @@ LEAPLIBS = /Users/yoneken/workspace/c/leap/sdk/lib/libLeap.dylib
 EIGEN_INCDIR = -I/opt/local/include/eigen3
 GLLIBS = -framework GLUT -framework OpenGL
 
-.PHONY: all clean run sample axis vel cycle screen numbers mouse_mac
+.PHONY: all clean run sample axis vel cycle screen numbers mouse_mac Fitt
 
-all: sample axis vel cycle screen numbers mouse_mac
+all: sample axis vel cycle screen numbers mouse_mac Fitt
 
 clean:
 	rm *.o
@@ -19,9 +19,10 @@ clean:
 	rm -f screen
 	rm -f numbers
 	rm -f mouse_mac
+	rm -f Fitt
 
 run:
-	./numbers
+	./Fitt
 
 sample: sample.o
 	$(CC) $(LEAPLIBS) $^ -o $@ 
@@ -61,6 +62,15 @@ endif
 
 mouse_mac: mouse_mac.o
 	$(CC) -framework CoreGraphics -framework CoreFoundation $(LEAPLIBS) $^ -o $@
+ifeq ($(UNAME), Darwin)
+	install_name_tool -change $(LEAPLIBS) @loader_path/libLeap.dylib $@
+endif
+
+Fitt: Fitt.o
+	$(CC) $(GLLIBS) $(LEAPLIBS) $^ -o $@
+ifeq ($(UNAME), Darwin)
+	install_name_tool -change $(LEAPLIBS) @loader_path/libLeap.dylib $@
+endif
 
 %.o: ../%.cpp
 	$(CC) -Wall -03 $(EIGEN_INCDIR) $(LEAP_INCDIR) -c $<
