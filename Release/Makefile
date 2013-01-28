@@ -8,7 +8,7 @@ GLLIBS = -framework GLUT -framework OpenGL
 
 .PHONY: all clean run sample axis vel cycle screen numbers mouse_mac Fitt
 
-all: sample axis vel cycle screen numbers mouse_mac Fitt
+all: sample axis vel cycle screen numbers mouse_mac Fitts
 
 clean:
 	rm *.o
@@ -19,10 +19,10 @@ clean:
 	rm -f screen
 	rm -f numbers
 	rm -f mouse_mac
-	rm -f Fitt
+	rm -f Fitts
 
 run:
-	./Fitt
+	./Fitts
 
 sample: sample.o
 	$(CC) $(LEAPLIBS) $^ -o $@ 
@@ -66,7 +66,7 @@ ifeq ($(UNAME), Darwin)
 	install_name_tool -change $(LEAPLIBS) @loader_path/libLeap.dylib $@
 endif
 
-Fitt: Fitt.o
+Fitts: Fitts.o
 	$(CC) $(GLLIBS) $(LEAPLIBS) $^ -o $@
 ifeq ($(UNAME), Darwin)
 	install_name_tool -change $(LEAPLIBS) @loader_path/libLeap.dylib $@
