@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{81DCD8A0-9487-4B1E-AFEE-686318C8B6BB}</ProjectGuid>
+    <ProjectGuid>{036B1973-2EB2-4A8D-B030-850A6305B3E6}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>velocity</RootNamespace>
+    <RootNamespace>screen</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -80,11 +80,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\myglut.cpp" />
-    <ClCompile Include="..\vel.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\myglut.h" />
+    <ClCompile Include="..\screen.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

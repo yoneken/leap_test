@@ -1,4 +1,4 @@
-.DE_Store
+.DS_Store
 *.o
 *.log
 *.manifest
@@ -17,3 +17,5 @@ ipch
 *.opensdf
 *.sdf
 *.suo
+cycle*
+result*
