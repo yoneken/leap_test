@@ -1,5 +1,6 @@
 .DS_Store
 *.o
+*.so
 *.log
 *.manifest
 *.lastbuildstate

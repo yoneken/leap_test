@@ -7,7 +7,6 @@
 \******************************************************************************/
 
 #include <iostream>
-#include <Eigen/Dense>
 #include "Leap.h"
 using namespace Leap;
 

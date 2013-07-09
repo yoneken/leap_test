@@ -1,10 +1,13 @@
-#ifdef WIN32
+#if defined(_WIN64)||defined(_WIN32)
 #include <GL/glut.h>    			// Header File For The GLUT Library
 #include <GL/gl.h>
 #include <GL/glu.h>
-#else /* OS : !win */
+#elif __APPLE__
 #include <GLUT/glut.h>
+#elif __linux
+#include <GL/glut.h>    			// Header File For The GLUT Library
 #endif /* OS */
+
 #include "myglut.h"
 
 /*
