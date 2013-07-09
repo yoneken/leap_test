@@ -18,5 +18,6 @@ ipch
 *.opensdf
 *.sdf
 *.suo
+*.dylib
 cycle*
 result*

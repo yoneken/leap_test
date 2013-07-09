@@ -8,6 +8,7 @@
 #include <GL/glut.h>    			// Header File For The GLUT Library
 #endif /* OS */
 
+#include <stdlib.h>
 #include <vector>
 #include <deque>
 #define _USE_MATH_DEFINES

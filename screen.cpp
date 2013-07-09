@@ -9,6 +9,7 @@
 #endif /* OS */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <vector>
 #include <math.h>
 #include "Leap.h"
