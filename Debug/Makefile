@@ -16,8 +16,9 @@ endif
 ifeq ($(OS), Darwin)
 	LEAP_INCDIR := -I/Users/yoneken/workspace/c/leap/sdk/include
 	LEAPLIBS := /Users/yoneken/workspace/c/leap/sdk/lib/libLeap.dylib
-	EIGEN_INCDIR := -I/opt/local/include/eigen3
+	EIGEN_INCDIR := -I/usr/local/include/eigen3
 	GLLIBS := -framework GLUT -framework OpenGL
+	BOOSTLIBS := -lboost_system-mt
 endif
 
 .PHONY: all clean run sample axis
@@ -41,7 +42,7 @@ ifeq ($(OS), Darwin)
 endif
 
 axis: axis.o myglut.o
-	$(CC) $^ $(LEAPLIBS) -o $@ $(GLLIBS)
+	$(CC) $^ $(BOOSTLIBS) $(LEAPLIBS) -o $@ $(GLLIBS)
 ifeq ($(OS), Darwin)
 	install_name_tool -change $(LEAPLIBS) @loader_path/libLeap.dylib $@
 endif

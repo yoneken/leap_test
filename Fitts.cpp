@@ -13,6 +13,7 @@
 #include <deque>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <boost/thread.hpp>
 #include <time.h>
 #include <fstream>
 #include "Leap.h"
@@ -48,6 +49,7 @@ bool fullScreen=true;						// toggle for fullscreen mode
 int screen_width = 640;
 int screen_height = 480;
 const static long font=(long)GLUT_BITMAP_HELVETICA_10;		// For printing bitmap fonts
+boost::mutex mtx;							// Exclusive control
 char s[30];
 
 Controller controller;
@@ -104,6 +106,9 @@ void SampleListener::onFrame(const Controller& controller) {
 */
 	const PointableList plist = frame.pointables();
 	if (!plist.empty()) {
+		// get mutex
+		boost::mutex::scoped_lock lk(mtx);
+		
 		// clear last datas
 		vpoint.clear();
 
@@ -174,6 +179,9 @@ void DrawGLScene()
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	// get mutex
+	boost::mutex::scoped_lock lk(mtx);
+	
 	if(!vpoint.empty()){
 		glPointSize(10);
 		Vector v;

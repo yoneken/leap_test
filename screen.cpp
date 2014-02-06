@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+#include <boost/thread.hpp>
 #include <math.h>
 #include "Leap.h"
 
@@ -32,6 +33,7 @@ int screen_width = DEFAULT_WIDTH;
 int screen_height = DEFAULT_HEIGHT;
 const static long font=(long)GLUT_BITMAP_HELVETICA_10;		// For printing bitmap fonts
 char s[30];
+boost::mutex mtx;							// Exclusive control
 
 Controller controller;
 Screen screen;
@@ -73,6 +75,9 @@ void SampleListener::onFrame(const Controller& controller) {
 						<< ", tools: " << frame.tools().count() << std::endl;
 */
 	if (!frame.hands().empty()) {
+		// get mutex
+		boost::mutex::scoped_lock lk(mtx);
+		
 		// clear last datas
 		vpoint.clear();
 
@@ -122,6 +127,9 @@ void DrawGLScene()
 
 	glColor3ub(255, 255, 255);								// Draw In White
 
+	// get mutex
+	boost::mutex::scoped_lock lk(mtx);
+	
 	if(!vpoint.empty()){
 		glPointSize(10);
 		glBegin(GL_POINTS);

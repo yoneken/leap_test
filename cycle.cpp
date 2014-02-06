@@ -11,6 +11,7 @@
 #include <vector>
 #include <deque>
 #include <math.h>
+#include <boost/thread.hpp>
 #include <fstream>
 #include "Leap.h"
 #include "myglut.h"
@@ -36,14 +37,16 @@ int screen_height = DEFAULT_HEIGHT;
 double slowMotionRatio = 10.0;				// slowMotionRatio Is A Value To Slow Down The Simulation, Relative To Real World Time
 double timeElapsed = 0.0;					// Elapsed Time In The Simulation (Not Equal To Real World's Time Unless slowMotionRatio Is 1
 const static long font=(long)GLUT_BITMAP_HELVETICA_10;		// For printing bitmap fonts
+boost::mutex mtx;							// Exclusive control
 
-deque<long> capture_time(640, 0);
+const int CAPTURE_NUMS = 2000;
+deque<long> capture_time(CAPTURE_NUMS, 0);
 Vector3fv vfinger;
 Matrix3fv mhand;
 vector<float> rhand;
-Vector3fd vhand(640, Vector3f::Zero());
+Vector3fd vhand(CAPTURE_NUMS, Vector3f::Zero());
 //Vector3fv vhand;
-Vector3fd vvhand(640, Vector3f::Zero());
+Vector3fd vvhand(CAPTURE_NUMS, Vector3f::Zero());
 
 class SampleListener : public Listener {
 	public:
@@ -80,11 +83,14 @@ void SampleListener::onFrame(const Controller& controller) {
 						<< ", tools: " << frame.tools().count() << std::endl;
 */
 	if (!frame.hands().empty()) {
+		// get mutex
+		boost::mutex::scoped_lock lk(mtx);
+		
 		// clear last datas
 		rhand.clear();
-		vhand.clear();
-		mhand.clear();
-		vfinger.clear();
+		//vhand.clear();
+		//mhand.clear();
+		//vfinger.clear();
 
 		// set new datas
 		Vector3f v, x, y, z;
@@ -107,7 +113,7 @@ void SampleListener::onFrame(const Controller& controller) {
 			v << -tmp[2]/1000.0f, -tmp[0]/1000.0f, tmp[1]/1000.0f;
 			vvhand.pop_front();
 			vvhand.push_back(v);
-
+/*
 			normal = hlist[i].palmNormal();
 			direction = hlist[i].direction();
 			y << -normal[2], -normal[0], normal[1];
@@ -119,8 +125,9 @@ void SampleListener::onFrame(const Controller& controller) {
 					 y[0], y[1], y[2],
 					 z[0], z[1], z[2];
 			mhand.push_back(m);
+*/		
 //		}
-		
+/*		
 		// Check if the hand has any fingers
 		const FingerList fingers = frame.fingers();
 		for(int i=0;i<fingers.count();i++){
@@ -128,6 +135,7 @@ void SampleListener::onFrame(const Controller& controller) {
 			v << -tmp[2]/1000.0f, -tmp[0]/1000.0f, tmp[1]/1000.0f;
 			vfinger.push_back(v);
 		}
+*/		
 	}
 }
 
@@ -141,8 +149,11 @@ void CleanupExit()
 	controller.removeListener(listener);
 
 	ofstream ofs("cycle.csv");
+	ofs << "us, X, Y, Z, Vx, Vy, Vz" << endl;
 	for(int i=0;i<vvhand.size();i++){
-		ofs << capture_time[i] << "," << vvhand[i][0] << "," << vvhand[i][1] << "," << vvhand[i][2] << endl;
+		ofs << (capture_time[i] - capture_time[0]) << "," 
+				<< vhand[i][0] << "," << vhand[i][1] << "," << vhand[i][2] << "," 
+				<< vvhand[i][0] << "," << vvhand[i][1] << "," << vvhand[i][2] << endl;
 	}
 
 	exit (1);
@@ -188,17 +199,20 @@ void DrawGLScene()
 	Vector3d orig;
 	orig << 0.0, 0.0, 0.0;
 	
-//	for(int i=0;i<vhand.size();i++){
+	// get mutex
+	boost::mutex::scoped_lock lk(mtx);
+	
+	//	for(int i=0;i<vhand.size();i++){
 	int i=0;
 		glDrawArrowdr(orig, vhand[i].cast<double>());
 		//glDrawMatrix3fr(rhand[i] * mhand[i] / 500.0f, vhand[i]);
 //	}
-
+/*
 	glColor3ub(  0,	255, 255);
 	for(int i=0;i<vfinger.size();i++){
 		glDrawSpherer(vfinger[i], 0.01);
 	}
-
+*/
 /*
 	glColor3ub(255, 255, 255);								// Draw In White
 	sprintf(s,"Time elapsed (seconds): %.2f",timeElapsed);

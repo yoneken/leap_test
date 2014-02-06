@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <math.h>
+#include <boost/thread.hpp>
 #include "Leap.h"
 #include "myglut.h"
 
@@ -32,6 +33,7 @@ bool fullScreen=false;						// toggle for fullscreen mode
 double slowMotionRatio = 10.0;				// slowMotionRatio Is A Value To Slow Down The Simulation, Relative To Real World Time
 double timeElapsed = 0.0;					// Elapsed Time In The Simulation (Not Equal To Real World's Time Unless slowMotionRatio Is 1
 const static long font=(long)GLUT_BITMAP_HELVETICA_10;		// For printing bitmap fonts
+boost::mutex mtx;							// Exclusive control
 
 Vector3fv vhand(2);
 Vector3fv vfinger(10);
@@ -73,6 +75,9 @@ void SampleListener::onFrame(const Controller& controller) {
 						<< ", tools: " << frame.tools().count() << std::endl;
 */
 	if (!frame.hands().empty()) {
+		// get mutex
+		boost::mutex::scoped_lock lk(mtx);
+		
 		// clear last datas
 		rhand.clear();
 		vhand.clear();
@@ -158,6 +163,9 @@ void DrawGLScene()
 
 	Vector3d orig;
 	orig << 0.0, 0.0, 0.0;
+	
+	// get mutex
+	boost::mutex::scoped_lock lk(mtx);
 	
 	for(int i=0;i<vhand.size();i++){
 		glDrawArrowdr(orig, vhand[i].cast<double>());

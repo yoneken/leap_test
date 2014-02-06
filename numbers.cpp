@@ -13,6 +13,7 @@
 #include <vector>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <boost/thread.hpp>
 #include <time.h>
 #include "Leap.h"
 
@@ -36,6 +37,7 @@ int screen_height = DEFAULT_HEIGHT;
 double timeElapsed = 0.0;					// Elapsed Time In The Simulation (Not Equal To Real World's Time Unless slowMotionRatio Is 1
 const static long font=(long)GLUT_BITMAP_HELVETICA_18;		// For printing bitmap fonts
 char s[30];
+boost::mutex mtx;							// Exclusive control
 
 Controller controller;
 Screen screen;
@@ -81,6 +83,9 @@ void SampleListener::onFrame(const Controller& controller) {
 						<< ", tools: " << frame.tools().count() << std::endl;
 */
 	if (!frame.hands().empty()) {
+		// get mutex
+		boost::mutex::scoped_lock lk(mtx);
+		
 		// clear last datas
 		vpoint.clear();
 		vel.clear();
@@ -150,6 +155,9 @@ void DrawGLScene()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	// get mutex
+	boost::mutex::scoped_lock lk(mtx);
+	
 	if(!vpoint.empty()){
 		glPointSize(10);
 		glBegin(GL_POINTS);
